@@ -6,3 +6,10 @@ The goal of this project is to "Remaster" old animated content for viewing on a 
 - Background Merging
 - Sampled Outpainting
 - Sharpening? (Post Processing)
+
+## Libraries
+- Jupyter
+- Numpy
+- OpenCV
+- PySceneDetect
+- StableDiffusion Infinity
