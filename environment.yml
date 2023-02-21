@@ -1,5 +1,5 @@
-conda create -n sd-inf python=3.10
-conda activate sd-inf
+conda create -n stare python=3.10
+conda activate stare
 conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
 conda install scipy scikit-image
 conda install -c conda-forge diffusers transformers ftfy accelerate
@@ -13,3 +13,4 @@ pip install tqdm
 pip install appdirs
 pip install scenedetect
 pip install opencv-python
+pip install jupyter
