@@ -1,0 +1,15 @@
+conda create -n sd-inf python=3.10
+conda activate sd-inf
+conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+conda install scipy scikit-image
+conda install -c conda-forge diffusers transformers ftfy accelerate
+pip install opencv-python
+pip install -U gradio
+pip install pytorch-lightning==1.7.7 einops==0.4.1 omegaconf==2.2.3
+pip install timm
+pip install numpy
+pip install Click
+pip install tqdm
+pip install appdirs
+pip install scenedetect
+pip install opencv-python
