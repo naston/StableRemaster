@@ -9,9 +9,7 @@ The goal of this project is to "Remaster" old animated content for viewing on a 
 
 ## Setup
 - Clone repo
-- Create a new env using conda
-- Conda install pip
-- pip install requirements.txt
+- conda env create -f environment.yml
 
 ## Libraries
 - Jupyter
