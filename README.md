@@ -3,17 +3,12 @@ The goal of this project is to "Remaster" old animated content for viewing on a 
 
 ## Pipeline
 - Scene Segmentation
+- Object Masking?
 - Background Merging
 - Sampled Outpainting
 - Sharpening? (Post Processing)
 
 ## Setup
 - Clone repo
-- conda env create -f environment.yml
-
-## Libraries
-- Jupyter
-- Numpy
-- OpenCV
-- PySceneDetect
-- StableDiffusion Infinity
+- cd into repo folder
+- conda env create -f environment.yml (this doesn't work yet so you may have to run each line individually)
