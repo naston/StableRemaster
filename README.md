@@ -13,10 +13,10 @@ To achieve this goal, we will utilize a novel approach that combines Stable Diff
 - Sharpening? (Post Processing)
 
 ## Setup
-'''
+```
 git clone https://github.com/naston/StableRemaster
 cd StableRemaster
 conda env create -f environment.yml
-'''
+```
 Download ffmpeg from [https://ffmpeg.org/download.html]
-Verify download in terminal using: 'ffmpeg'
+Verify download in terminal using: `ffmpeg`
