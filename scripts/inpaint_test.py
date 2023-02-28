@@ -34,4 +34,4 @@ mask = Image.open(mask_fp).convert("RGB")
 #image and mask_image should be PIL images.
 #The mask structure is white for inpainting and black for keeping as is
 im = pipe(prompt='',image=image, mask_image=mask).images[0]
-im.save(f"{outdir}/Lenna_inpaint.png")
+im.save(f"{outdir}/Lenna_inpaint2.png")
