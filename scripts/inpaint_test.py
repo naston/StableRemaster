@@ -9,6 +9,8 @@ print(os.getcwd())
 print('-'*30)
 
 if torch.cuda.is_available():
+    print('Device: CUDA')
+    print('-'*30)
     pipe = StableDiffusionInpaintPipeline.from_pretrained(
         "runwayml/stable-diffusion-inpainting",
         revision="fp16",
@@ -16,6 +18,8 @@ if torch.cuda.is_available():
     )
     device = torch.device('cuda')
 else:
+    print('Device: CPU')
+    print('-'*30)
     pipe = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting",)
     device = torch.device('cpu')
 
