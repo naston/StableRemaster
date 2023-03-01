@@ -20,3 +20,9 @@ conda env create -f environment.yml
 ```
 Download ffmpeg from [https://ffmpeg.org/download.html]
 Verify download in terminal using: `ffmpeg`
+
+## Developement
+- Create your own branch of the name `<initials>_<task-name>`
+- A branch task should be small in scope and able to be completed within a week
+- After the task is complete create a PR and assign all team members as reviewers
+- Once branch passes PR it will be merged and deleted
