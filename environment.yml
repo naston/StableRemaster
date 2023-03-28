@@ -1,15 +1,14 @@
-conda create -n stare python=3.10
-conda activate stare
-conda install pytorch torchvision torchaudio -c pytorch-nightly
-conda install scipy scikit-image
-conda install -c conda-forge diffusers transformers ftfy accelerate
-pip install opencv-python
-pip install -U gradio
-pip install pytorch-lightning==1.7.7 einops==0.4.1 omegaconf==2.2.3
-pip install timm
-pip install numpy
-pip install Click
-pip install tqdm
-pip install appdirs
-pip install scenedetect
-pip install jupyter
+name: stare
+dependencies:
+  - python=3.10
+  - pytorch
+  - pip
+  - pip:
+    - numpy
+    - diffusers
+    - transformers
+    - accelerate
+    - opencv-python
+    - tqdm
+    - scenedetect
+    - jupyter
