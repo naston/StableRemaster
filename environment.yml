@@ -11,4 +11,5 @@ dependencies:
     - opencv-python
     - tqdm
     - scenedetect
+    - matplotlib
     - jupyter
