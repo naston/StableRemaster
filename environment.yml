@@ -4,6 +4,7 @@ dependencies:
   - pytorch
   - pip
   - pip:
+    - torchvision
     - numpy
     - diffusers
     - transformers
