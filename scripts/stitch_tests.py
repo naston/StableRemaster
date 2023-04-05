@@ -6,16 +6,6 @@ from tqdm.auto import tqdm
 
 DATA_DIR = "./data/02_intermediate/masked_bg/static_test1"
 
-import cv2
-import numpy as np
-
-import cv2
-import numpy as np
-
-import cv2
-import numpy as np
-
-
 def seamless_clone(image1, image2):
     # Create a mask for the second image
     mask = np.zeros(image2.shape, dtype=image2.dtype)

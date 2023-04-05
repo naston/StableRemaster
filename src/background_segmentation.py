@@ -10,6 +10,9 @@ def background_segmentation_loader():
     model.eval()
 
     transform = T.ToTensor()
+
+    watermark_mask = np.ones((720,940)).astype('uint8')
+    watermark_mask[50:110,785:935]=0
     
     def create_background_mask(frame, mask_conf, cat_conf):
         frame_input = transform(frame)
@@ -29,7 +32,8 @@ def background_segmentation_loader():
 
     def get_background(frame, mask_conf=0.4, cat_conf=0.7):
         mask = create_background_mask(frame, mask_conf, cat_conf).astype('uint8')
+        mask = cv2.bitwise_and(mask , mask , mask = watermark_mask).astype('uint8')
         bg = cv2.bitwise_and(frame , frame , mask = mask)
-        return bg
+        return bg, mask
     
     return get_background
