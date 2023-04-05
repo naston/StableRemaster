@@ -2,79 +2,100 @@ import os
 
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+from tqdm.auto import tqdm
 
-DATA_DIR = "./data/02_intermediate/"
+DATA_DIR = "./data/02_intermediate/masked_bg/static_test1"
+
+import cv2
+import numpy as np
+
+import cv2
+import numpy as np
+
+import cv2
+import numpy as np
+
+
+def seamless_clone(image1, image2):
+    # Create a mask for the second image
+    mask = np.zeros(image2.shape, dtype=image2.dtype)
+    mask[:] = 255
+
+    # Find the center point of the second image
+    center = (image1.shape[1] // 2, image1.shape[0] // 2)
+
+    # Blend the images using seamlessClone
+    blended_image = cv2.seamlessClone(image2, image1, mask, center, cv2.NORMAL_CLONE)
+    return blended_image
 
 
 def stitch_images(image1, image2):
-    # Detect features and keypoints using AKAZE
-    akaze = cv2.AKAZE_create()
-    keypoints1, descriptors1 = akaze.detectAndCompute(image1, None)
-    keypoints2, descriptors2 = akaze.detectAndCompute(image2, None)
+    # Detect features and keypoints using SIFT
+    sift = cv2.SIFT_create()
+    keypoints1, descriptors1 = sift.detectAndCompute(image1, None)
+    keypoints2, descriptors2 = sift.detectAndCompute(image2, None)
 
     # Match the features using FLANN-based matcher
-    index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
+    FLANN_INDEX_KDTREE = 1
+    index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
     search_params = dict(checks=50)
     flann = cv2.FlannBasedMatcher(index_params, search_params)
     matches = flann.knnMatch(descriptors1, descriptors2, k=2)
-
     # Filter good matches using the ratio test
     good_matches = []
-    for m, n in matches:
-        if m.distance < 0.7 * n.distance:
-            good_matches.append(m)
+    for pair in matches:
+        if len(pair) == 2:
+            m, n = pair
+            if m.distance < 0.5 * n.distance:
+                good_matches.append(m)
 
-    # Calculate the average translation
-    dx_total, dy_total = 0, 0
-    for m in good_matches:
-        dx_total += keypoints1[m.queryIdx].pt[0] - keypoints2[m.trainIdx].pt[0]
-        dy_total += keypoints1[m.queryIdx].pt[1] - keypoints2[m.trainIdx].pt[1]
+    if len(good_matches) < 10:  # Minimum number of matches required for homography
+        print("Not enough good matches found to stitch the images.")
+        return image1
 
-    dx_avg = int(dx_total / len(good_matches))
-    dy_avg = int(dy_total / len(good_matches))
+    # Extract the matched points
+    src_pts = np.float32([keypoints1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+    dst_pts = np.float32([keypoints2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 
-    # Shift image1 by the average translation
+    # Compute the homography using RANSAC
+    H, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 8.0)
+
+    # Warp image2 using the computed homography
     h, w = image1.shape[:2]
-    M = np.float32([[1, 0, dx_avg], [0, 1, dy_avg]])
-    shifted_image1 = cv2.warpAffine(image1, M, (w, h))
+    warped_image2 = cv2.warpPerspective(image2, H, (w, h))
 
-    # Blend the images
-    stitched_image = np.maximum(shifted_image1, image2)
+    stitched_image = np.maximum(image1, warped_image2)
 
     return stitched_image
 
+
+def stitch_multiple(images):
+    if len(images) < 2:
+        raise ValueError("At least two images are required for stitching.")
+
+    stitched_image = images[0]
+    for i in tqdm(range(1, len(images))):
+        stitched_image = stitch_images(stitched_image, images[i])
+
+    return stitched_image
+
+
 if __name__ == "__main__":
     # Load the pre-masked images
-    frame1, frame2 = os.path.join(DATA_DIR, "frame1.png"), os.path.join(DATA_DIR, "frame2.png")
-    image1 = cv2.imread(frame1)
-    image2 = cv2.imread(frame2)
+    paths = [os.path.join(DATA_DIR, f"frame_{idx}.png") for idx in range(132)]
+    images = [cv2.imread(path) for path in paths if os.path.exists(path)]
+    images = [image for image in images if image is not None]
+    # Mask the watermark
+    height, width, _ = images[0].shape
+    watermark_mask = np.ones((height, width), dtype=np.uint8) * 255
+    watermark_mask[50:110, 785:935] = 0
+    images = [cv2.bitwise_and(image, image, mask=watermark_mask) for image in images]
 
     # Stitch the images
-    stitched_image = stitch_images(image1, image2)
-
-    # Convert images from BGR to RGB for correct display in matplotlib
-    image1_rgb = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
-    image2_rgb = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
+    stitched_image = stitch_multiple(images)
     stitched_image_rgb = cv2.cvtColor(stitched_image, cv2.COLOR_BGR2RGB)
 
-    # Display the input images and the stitched image using matplotlib
-    plt.figure(figsize=(12, 4))
-
-    plt.subplot(1, 3, 1)
-    plt.imshow(image1_rgb)
-    plt.title("Image 1")
-    plt.axis("off")
-
-    plt.subplot(1, 3, 2)
-    plt.imshow(image2_rgb)
-    plt.title("Image 2")
-    plt.axis("off")
-
-    plt.subplot(1, 3, 3)
-    plt.imshow(stitched_image_rgb)
-    plt.title("Stitched Image")
-    plt.axis("off")
-
-    plt.tight_layout()
-    plt.show()
+    # Display the result
+    cv2.imshow("Stitched Image", stitched_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
