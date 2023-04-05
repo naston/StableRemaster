@@ -1,33 +1,32 @@
-from PIL import Image
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 import torch
 import torchvision
 from torchvision import transforms as T
 
 DATA_PATH = './data/02_scenes/'
 
+
 def get_frame_durations(cap, fps):
     """A function that returns the list of durations where to save the frames"""
-    
+
     # get the clip duration by dividing number of frames by the number of frames per second
     clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
-    
+
     # use np.arange() to make floating-point steps
     return np.arange(0, clip_duration, 1 / fps)
 
+
 def split_video(video_file, save_fps=30):
-    
-    # read in video   
+    # read in video
     cap = cv2.VideoCapture(video_file)
     # get video FPS
     fps = min(cap.get(cv2.CAP_PROP_FPS), save_fps)
 
     # get the list of duration spots to save
     saving_frames_durations = get_frame_durations(cap, fps)
-    
+
     # start the loop
     frames = []
     count = 0
@@ -63,12 +62,13 @@ def split_video(video_file, save_fps=30):
         count += 1"""
     return frames
 
+
 def background_segmentation_loader():
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights = "DEFAULT")
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights="DEFAULT")
     model.eval()
 
     transform = T.ToTensor()
-    
+
     def create_background_mask(frame, mask_conf, cat_conf):
         frame_input = transform(frame)
         with torch.no_grad():
@@ -78,27 +78,35 @@ def background_segmentation_loader():
         labels = pred[0]['labels']
         scores = pred[0]['scores']
 
-        background_mask = np.ones(masks[0,0].shape).astype("uint8")
-        for i in np.where(scores>cat_conf)[0]:
-            inv_obj_mask = (masks[i,0]<=mask_conf).numpy().astype("uint8")
-            background_mask = np.all([background_mask,inv_obj_mask],axis=0) 
+        background_mask = np.ones(masks[0, 0].shape).astype("uint8")
+        for i in np.where(scores > cat_conf)[0]:
+            inv_obj_mask = (masks[i, 0] <= mask_conf).numpy().astype("uint8")
+            background_mask = np.all([background_mask, inv_obj_mask], axis=0)
 
         return background_mask
 
     def get_background(frame, mask_conf=0.4, cat_conf=0.7):
         mask = create_background_mask(frame, mask_conf, cat_conf).astype('uint8')
-        bg = cv2.bitwise_and(frame , frame , mask = mask)
+        bg = cv2.bitwise_and(frame, frame, mask=mask)
         return bg
-    
+
     return get_background
+
 
 cap_path = f'{DATA_PATH}atla_s1e1-Scene-151.mp4'
 frames = split_video(cap_path)
 
 test_frame = frames[0]
-plt.imshow(test_frame)
 
 segmenter = background_segmentation_loader()
-test_frame_background = segmenter(test_frame)
+test_frame_bg = segmenter(test_frame)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
-plt.imshow(test_frame_background,'gray')
+ax1.imshow(test_frame, cmap='gray')
+ax1.set_title('Test Frame')
+
+ax2.imshow(test_frame_bg, cmap='gray')
+ax2.set_title('Test Frame Background')
+
+# show the figure
+plt.show()
