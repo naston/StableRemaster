@@ -4,6 +4,7 @@ dependencies:
   - pytorch
   - pip
   - pip:
+    - torchvision
     - numpy
     - diffusers
     - transformers
@@ -11,4 +12,5 @@ dependencies:
     - opencv-python
     - tqdm
     - scenedetect
+    - matplotlib
     - jupyter
