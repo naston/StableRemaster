@@ -30,15 +30,21 @@ outdir = './data/03_final/'
 
 #prompt = "Face of a yellow cat, high resolution, sitting on a park bench"
 image_fp = f'{indir}/Lenna.png'
-mask_fp = f'{indir}/Lenna_mask.png'
+mask_arr = np.zeros([720,1280])
+mask_arr[0:512,0:100]=1
+mask_arr[0:512,612:712]=1
 
 image = Image.open(image_fp).convert("RGB")
-mask = Image.open(mask_fp).convert("RGB")
+mask = Image.fromarray(mask_arr).convert("RGB")
+
+image = np.array(image)
+image = np.pad(image,((0,208),(100,668),(0,0)),'constant',constant_values=(0,0))
+image = Image.fromarray(image).convert("RGB")
 
 print(np.array(image).shape)
 print(np.array(mask).shape)
 
 #image and mask_image should be PIL images.
 #The mask structure is white for inpainting and black for keeping as is
-im = pipe(prompt='',image=image, mask_image=mask).images[0]
-im.save(f"{outdir}/Lenna_inpaint2.png")
+im = pipe(prompt='',image=image, mask_image=mask,height=720,width=1280).images[0]
+im.save(f"{outdir}/Larger_Inpaint.png")
