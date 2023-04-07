@@ -7,6 +7,8 @@ from torchvision import transforms as T
 
 def background_segmentation_loader():
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights = "DEFAULT")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
     model.eval()
 
     transform = T.ToTensor()
