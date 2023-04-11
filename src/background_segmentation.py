@@ -17,13 +17,13 @@ def background_segmentation_loader():
     watermark_mask[50:110,785:935]=0
     
     def create_background_mask(frame, mask_conf, cat_conf):
-        frame_input = transform(frame)
+        frame_input = transform(frame).to(device)
         with torch.no_grad():
             pred = model([frame_input])
 
-        masks = pred[0]["masks"]
-        labels = pred[0]['labels']
-        scores = pred[0]['scores']
+        masks = pred[0]["masks"].cpu()
+        labels = pred[0]['labels'].cpu()
+        scores = pred[0]['scores'].cpu()
 
         background_mask = np.ones(masks[0,0].shape).astype("uint8")
         for i in np.where(scores>cat_conf)[0]:

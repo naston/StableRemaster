@@ -33,7 +33,8 @@ image_fp = f'{indir}/Lenna.png'
 mask_fp = f'{indir}/Lenna_mask.png'
 
 image = Image.open(image_fp).convert("RGB")
-mask = Image.open(mask_fp).convert("RGB")
+mask = np.zeros([512,512])
+mask[:256,:]=255
 
 print(np.array(image).shape)
 print(np.array(mask).shape)

@@ -1,5 +1,6 @@
 from scenedetect import detect, ContentDetector, split_video_ffmpeg
 import os
+import ffmpeg
 
 cwd = os.getcwd()
 os.chdir('./data/02_scenes')
