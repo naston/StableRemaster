@@ -3,11 +3,12 @@ import argparse
 import os
 
 parser=argparse.ArgumentParser()
-parser.add_argument('--in_path', help='Path to Scene to be expanded.',default='/02_scenes/atla_s1e1-Scene-151.mp4')
-parser.add_argument('--out_path',help='Folder for output to be stored.',default='/03_final/')
+parser.add_argument('--in_path', help='Path to Scene to be expanded.',default='./data/02_scenes/atla_s1e1-Scene-151.mp4')
+parser.add_argument('--out_path',help='Folder for output to be stored.',default='./data/03_final/')
 
 def run_scene_pipe(in_path, out_path):
     # seperate video into frames
+    print(in_path)
     frames = split_video(in_path)
     
     # resize?
@@ -42,6 +43,8 @@ def run_scene_pipe(in_path, out_path):
     file = in_path.split('/')[-1][:-4]
     title=file+'_res'
     create_video(new_frames, f'{out_path}/{title}.avi')
+
+    return f'{out_path}/{title}.avi'
 
 if __name__=='__main__':
     args = parser.parse_args()

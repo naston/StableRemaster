@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+from scenedetect import detect, ContentDetector, split_video_ffmpeg
+import os
+import ffmpeg
 
 def split_video(video_file, save_fps=30):
     
@@ -19,3 +22,16 @@ def split_video(video_file, save_fps=30):
         else:
             break
     return frames
+
+def detect_scenes(in_path):
+    cwd = os.getcwd()
+
+    os.makedirs('./data/temp_scenes',exist_ok=True)
+    os.chdir('./data/temp_scenes')
+
+    scene_list = detect(in_path, ContentDetector(),show_progress=True)
+
+    title = in_path.split('/')[-1][:-4]
+    split_video_ffmpeg(in_path, scene_list, video_name=title, show_progress=True)
+
+    os.chdir(cwd)
