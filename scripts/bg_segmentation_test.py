@@ -95,18 +95,19 @@ def background_segmentation_loader():
 
 cap_path = f'{DATA_PATH}atla_s1e1-Scene-151.mp4'
 frames = split_video(cap_path)
+for i in range(len(frames)):
+    test_frame = frames[i]
 
-test_frame = frames[0]
+    segmenter = background_segmentation_loader()
+    test_frame_bg = segmenter(test_frame)
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
-segmenter = background_segmentation_loader()
-test_frame_bg = segmenter(test_frame)
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    ax1.imshow(test_frame, cmap='gray')
+    ax1.set_title('Test Frame')
 
-ax1.imshow(test_frame, cmap='gray')
-ax1.set_title('Test Frame')
+    ax2.imshow(test_frame_bg, cmap='gray')
+    ax2.set_title('Test Frame Background')
+    """
+    cv2.imwrite(f"data/02_intermediate/masked_bg/static_test1/frame_{i}.png", test_frame_bg)
 
-ax2.imshow(test_frame_bg, cmap='gray')
-ax2.set_title('Test Frame Background')
-
-# show the figure
-plt.show()

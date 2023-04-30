@@ -5,20 +5,26 @@ import torch
 import torchvision
 from torchvision import transforms as T
 
-def background_segmentation_loader():
+def background_segmentation_loader(watermark=False):
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights = "DEFAULT")
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
     model.eval()
 
     transform = T.ToTensor()
     
+    watermark_mask = np.ones((720,940)).astype('uint8')
+    if watermark:
+        watermark_mask[50:110,785:935]=0
+    
     def create_background_mask(frame, mask_conf, cat_conf):
-        frame_input = transform(frame)
+        frame_input = transform(frame).to(device)
         with torch.no_grad():
             pred = model([frame_input])
 
-        masks = pred[0]["masks"]
-        labels = pred[0]['labels']
-        scores = pred[0]['scores']
+        masks = pred[0]["masks"].cpu()
+        labels = pred[0]['labels'].cpu()
+        scores = pred[0]['scores'].cpu()
 
         background_mask = np.ones(masks[0,0].shape).astype("uint8")
         for i in np.where(scores>cat_conf)[0]:
@@ -29,7 +35,8 @@ def background_segmentation_loader():
 
     def get_background(frame, mask_conf=0.4, cat_conf=0.7):
         mask = create_background_mask(frame, mask_conf, cat_conf).astype('uint8')
+        mask = cv2.bitwise_and(mask , mask , mask = watermark_mask).astype('uint8')
         bg = cv2.bitwise_and(frame , frame , mask = mask)
-        return bg
+        return bg, mask
     
     return get_background

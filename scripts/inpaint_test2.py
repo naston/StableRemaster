@@ -7,7 +7,9 @@ import os
 print('-'*30)
 print(os.getcwd())
 print('-'*30)
-
+print(torch.version.cuda)
+torch.cuda.empty_cache()
+torch.cuda.set_per_process_memory_fraction(0.9, device=None)
 if torch.cuda.is_available():
     print('Device: CUDA')
     print('-'*30)
@@ -30,16 +32,21 @@ outdir = './data/03_final/'
 
 #prompt = "Face of a yellow cat, high resolution, sitting on a park bench"
 image_fp = f'{indir}/Lenna.png'
-mask_fp = f'{indir}/Lenna_mask.png'
+mask_arr = np.zeros([360,640])
+mask_arr[:512,512:]=255
 
 image = Image.open(image_fp).convert("RGB")
-mask = np.zeros([512,512])
-mask[:256,:]=255
+mask = Image.fromarray(mask_arr).convert("RGB")
+
+image = np.array(image)
+image = np.pad(image,((0,0),(0,128),(0,0)),'constant',constant_values=(0,0))
+image = image[:360,:,:]
+image = Image.fromarray(image).convert("RGB")
 
 print(np.array(image).shape)
 print(np.array(mask).shape)
 
 #image and mask_image should be PIL images.
 #The mask structure is white for inpainting and black for keeping as is
-im = pipe(prompt='',image=image, mask_image=mask).images[0]
-im.save(f"{outdir}/Lenna_inpaint2.png")
+im = pipe(prompt='',image=image, mask_image=mask,height=360,width=640).images[0]
+im.save(f"{outdir}/Larger_Inpaint.png")
