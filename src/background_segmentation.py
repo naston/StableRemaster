@@ -5,16 +5,17 @@ import torch
 import torchvision
 from torchvision import transforms as T
 
-def background_segmentation_loader():
+def background_segmentation_loader(watermark=False):
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights = "DEFAULT")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = model.to(device)
     model.eval()
 
     transform = T.ToTensor()
-
+    
     watermark_mask = np.ones((720,940)).astype('uint8')
-    watermark_mask[50:110,785:935]=0
+    if watermark:
+        watermark_mask[50:110,785:935]=0
     
     def create_background_mask(frame, mask_conf, cat_conf):
         frame_input = transform(frame).to(device)
