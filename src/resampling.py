@@ -57,7 +57,7 @@ def outpaint_frame(frame, mask, sample_width, sample_height, pipe):
         sub_frame = Image.fromarray(sub_frame).convert("RGB")
         sub_mask = Image.fromarray(sub_mask).convert("RGB")
         
-        new_sub_frame = pipe(prompt='animated arctic iceberg background',image=sub_frame, 
+        new_sub_frame = pipe(prompt='animated background',image=sub_frame, 
                              mask_image=sub_mask,height=sample_height,width=sample_width).images[0]
         frame[y:(y+sample_height),x:(x+sample_width),:] = np.array(new_sub_frame)
         mask[y:(y+sample_height),x:(x+sample_width)]=0
